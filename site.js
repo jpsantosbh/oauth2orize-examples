@@ -26,3 +26,4 @@ exports.account = [
     res.render('account', { user: req.user });
   }
 ]
+

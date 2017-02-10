@@ -6,6 +6,8 @@ var passport = require('passport')
   , BasicStrategy = require('passport-http').BasicStrategy
   , ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy
   , BearerStrategy = require('passport-http-bearer').Strategy
+  , JwtStrategy = require('passport-jwt').Strategy
+  , ExtractJwt = require('passport-jwt').ExtractJwt
   , db = require('./db')
 
 
@@ -109,3 +111,18 @@ passport.use(new BearerStrategy(
     });
   }
 ));
+
+
+var opts = {}
+opts.jwtFromRequest = ExtractJwt.fromExtractors([ExtractJwt.fromAuthHeaderWithScheme('JWT'), ExtractJwt.fromBodyField("auth_token"), ExtractJwt.fromUrlQueryParameter("jwt")])
+opts.secretOrKey = ';-)secret';
+opts.issuer = 'civic.com';
+passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
+  db.users.findByUsername(jwt_payload.sub, function(err, user) {
+
+    if (err) { return done(err); }
+    if (!user) { return done(null, false); }
+
+    return done(null, user);
+  });
+}));

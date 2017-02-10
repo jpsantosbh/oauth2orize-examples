@@ -1,0 +1,32 @@
+<div style="text-align: center">
+    <img src='https://daks2k3a4ib2z.cloudfront.net/57aa266ca34e30ad0d61dadc/57b506771f986d4879b0be0a_logo.svg'>
+    <h1>Secure Private Login</h1>
+    <img class="civic-qrcode qr-code" src="<%= qrcode %>" />
+    <p>scan with Civic app</p>
+</div>
+<script>
+    var getJWT = function () {
+        $.ajax({
+            url: "/jwt?requestId=<%= requestId %>"
+        }).done(function( token ) {
+
+            $.ajax({
+                type: "POST",
+                url: "/loginjwt",
+                data: {"auth_token": token},
+                success: function (result, status, response, err) {
+                    //document.write(result);
+                    $('body').html(result);
+                }
+            });
+
+        }).fail(function (xhr, status, errorThrown) {
+            if(xhr.status == 404)
+                    window.setTimeout(getJWT, 1000);
+        });
+    }
+
+    $(function() {
+        window.setTimeout(getJWT, 1000);
+    });
+</script>
